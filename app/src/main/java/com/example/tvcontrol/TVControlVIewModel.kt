@@ -1,16 +1,14 @@
 package com.example.tvcontrol
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.connectsdk.device.ConnectableDevice
+import com.connectsdk.device.ConnectableDeviceListener
 import com.connectsdk.discovery.DiscoveryManager
 import com.connectsdk.discovery.DiscoveryManagerListener
-import com.connectsdk.service.capability.VolumeControl
-import com.connectsdk.service.capability.listeners.ResponseListener
+import com.connectsdk.service.DeviceService
 import com.connectsdk.service.command.ServiceCommandError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,19 +20,10 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
     private val _uiState = MutableStateFlow(TVControlState())
     val uiState: StateFlow<TVControlState> = _uiState
 
-    private val defaultResponseListener = object : ResponseListener<Any> {
-        override fun onError(error: ServiceCommandError?) {
-            Log.e(DEBUG_TAG, error?.message.toString())
-        }
-
-        override fun onSuccess(obj: Any?) {
-            Log.d(DEBUG_TAG, obj.toString())
-        }
-
-    }
-
     private var discoveryManager: DiscoveryManager? = null
-    private var currentDevice: ConnectableDevice? = null
+    private var _currentDevice: ConnectableDevice? = null
+    val currentDevice
+        get() = _currentDevice
 
     private fun checkDuplicates(device: ConnectableDevice): Boolean {
         return _uiState.value.devices.any { it.ipAddress == device.ipAddress }
@@ -113,23 +102,43 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun connectToDevice(device: ConnectableDevice) {
+    fun connectToDevice(device: ConnectableDevice, onConnect : () -> Unit = {}) {
         viewModelScope.launch {
-            currentDevice = device
-            currentDevice?.connect()
+            _currentDevice = device
+            _currentDevice?.connect()
+            _currentDevice?.addListener(object : ConnectableDeviceListener {
+                override fun onDeviceReady(device: ConnectableDevice?) {
+                    onConnect()
+                }
+
+                override fun onDeviceDisconnected(device: ConnectableDevice?) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onPairingRequired(
+                    device: ConnectableDevice?,
+                    service: DeviceService?,
+                    pairingType: DeviceService.PairingType?
+                ) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onCapabilityUpdated(
+                    device: ConnectableDevice?,
+                    added: MutableList<String>?,
+                    removed: MutableList<String>?
+                ) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onConnectionFailed(
+                    device: ConnectableDevice?,
+                    error: ServiceCommandError?
+                ) {
+                    TODO("Not yet implemented")
+                }
+            })
         }
-    }
-
-    fun volumeUp() {
-        currentDevice?.getCapability(VolumeControl::class.java)?.volumeUp(defaultResponseListener)
-    }
-
-    fun volumeDown() {
-        currentDevice?.getCapability(VolumeControl::class.java)?.volumeDown(defaultResponseListener)
-    }
-
-    fun getCapabilities(): List<String> {
-        return currentDevice?.capabilities ?: listOf()
     }
 
     override fun onCleared() {

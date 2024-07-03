@@ -5,29 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.connectsdk.device.ConnectableDevice
+import com.example.tvcontrol.destionations.DeviceControl
 import com.example.tvcontrol.destionations.Search
-import com.example.tvcontrol.ui.theme.TVControlTheme
-import com.example.tvcontrol.view.SearchDevices
+import com.example.tvcontrol.ui.theme.AppTheme
+import com.example.tvcontrol.view.DeviceControlScreen
+import com.example.tvcontrol.view.ListOfFoundDevices
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val tvControlViewModel by viewModels<TVControlViewModel> {TVControlViewModelFactory(application)}
+        val tvControlViewModel by viewModels<TVControlViewModel> { TVControlViewModelFactory(application) }
 
         setContent {
-            TVControlTheme {
+            AppTheme {
                 CustomNavHost(tvControlViewModel)
             }
         }
@@ -38,7 +34,10 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
 
         NavHost(navController = navController, startDestination = Search) {
-            composable<Search>{ SearchDevices(viewModel = tvControlViewModel)}
+            composable<Search>{ ListOfFoundDevices(viewModel = tvControlViewModel,
+                onDeviceConnected =  { navController.navigate(DeviceControl)})}
+            composable<DeviceControl> {
+                DeviceControlScreen(device = tvControlViewModel.currentDevice) }
         }
     }
 }
