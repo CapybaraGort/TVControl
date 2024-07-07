@@ -23,12 +23,14 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -55,9 +57,19 @@ private val defaultResponseListener = object : ResponseListener<Any> {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeviceControlScreen(modifier: Modifier = Modifier, device: ConnectableDevice?) {
-    Scaffold(modifier = modifier.windowInsetsPadding(WindowInsets.systemBars)) { innerPadding ->
+fun DeviceControlScreen(modifier: Modifier = Modifier, device: ConnectableDevice?, onNavigateBack: () -> Unit) {
+    Scaffold(modifier = modifier.windowInsetsPadding(WindowInsets.systemBars),
+        topBar = { TopAppBar(title = {
+            Row {
+                IconButton(onClick = onNavigateBack,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.tertiary, shape = CircleShape)
+                ) {
+                    Image(painter = painterResource(id = R.drawable.arrow_small_left_36), contentDescription = null)
+                }
+            }
+        })}) { innerPadding ->
         ControlButtons(modifier = Modifier.padding(innerPadding), device = device)
     }
 }

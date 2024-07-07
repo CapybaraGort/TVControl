@@ -20,6 +20,9 @@ interface DeviceDao {
     @Query("SELECT * FROM device_table WHERE id = :id")
     suspend fun getDeviceById(id: Int): Device
 
+    @Query("SELECT EXISTS(SELECT * FROM device_table WHERE modelName = :modelName)")
+    suspend fun existsDevice(modelName: String): Boolean
+
     @Query("SELECT * FROM device_table")
     suspend fun getAllDevices() : List<Device>
 }

@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">TVControl</string>
     <string name="search">Search</string>
+    <string name="found_devices">Found devices</string>
+    <string name="devices">Devices</string>
 </resources>
