@@ -1,4 +1,4 @@
-package com.example.tvcontrol.database
+package com.example.tvcontrol.viewModels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -7,9 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.connectsdk.device.ConnectableDevice
+import com.example.tvcontrol.database.device.Device
+import com.example.tvcontrol.database.device.DeviceDao
+import com.example.tvcontrol.database.device.DeviceDatabase
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 class DeviceViewModel(application: Application): AndroidViewModel(application) {
     private val deviceDao: DeviceDao = DeviceDatabase.getDatabase(application).deviceDao()
@@ -20,8 +21,8 @@ class DeviceViewModel(application: Application): AndroidViewModel(application) {
         fetchDatabase()
     }
 
-    fun insertDevice(device: ConnectableDevice) = viewModelScope.launch {
-        val dev = Device(modelName = device.modelName)
+    fun insertDevice(name: String, device: ConnectableDevice) = viewModelScope.launch {
+        val dev = Device(modelName = device.modelName, name = name)
         deviceDao.insert(dev)
         fetchDatabase()
     }
@@ -39,6 +40,13 @@ class DeviceViewModel(application: Application): AndroidViewModel(application) {
     fun getDeviceById(id: Int): LiveData<Device> {
         return liveData {
             emit(deviceDao.getDeviceById(id))
+        }
+    }
+
+    fun deleteAllDevices() {
+        viewModelScope.launch {
+            deviceDao.deleteAll()
+            fetchDatabase()
         }
     }
 

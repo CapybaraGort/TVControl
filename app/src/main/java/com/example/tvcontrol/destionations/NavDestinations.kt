@@ -14,3 +14,6 @@ object DeviceControl
 @Serializable
 object ListOfDevices
 
+@Serializable
+object AddDevice
+

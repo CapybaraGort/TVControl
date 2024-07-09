@@ -4,4 +4,5 @@
     <string name="search">Search</string>
     <string name="found_devices">Found devices</string>
     <string name="devices">Devices</string>
+    <string name="add">Add</string>
 </resources>

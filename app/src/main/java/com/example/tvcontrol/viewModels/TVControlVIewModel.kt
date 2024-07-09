@@ -1,4 +1,4 @@
-package com.example.tvcontrol
+package com.example.tvcontrol.viewModels
 
 import android.app.Application
 import android.util.Log
@@ -8,12 +8,10 @@ import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.device.ConnectableDeviceListener
 import com.connectsdk.discovery.DiscoveryManager
 import com.connectsdk.discovery.DiscoveryManagerListener
-import com.connectsdk.service.CastService
 import com.connectsdk.service.DeviceService
 import com.connectsdk.service.command.ServiceCommandError
-import com.connectsdk.service.config.ServiceDescription
-import com.example.tvcontrol.database.Device
-import kotlinx.coroutines.delay
+import com.example.tvcontrol.TVControlState
+import com.example.tvcontrol.database.device.Device
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,6 +35,7 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
     private fun checkDuplicates(device: ConnectableDevice): Boolean {
         return _uiState.value.devices.any { it.ipAddress == device.ipAddress }
     }
+
     private fun removeDuplicates(device: ConnectableDevice) {
         val duplicate = _uiState.value.devices.find { it.ipAddress == device.ipAddress }
         if((device.capabilities?.size ?: 0) > (duplicate?.capabilities?.size ?: 0))  {
@@ -114,42 +113,50 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun resetCurrentDevice() {
+        _currentDevice = null
+    }
+
     fun connectToDevice(device: ConnectableDevice, onConnect : () -> Unit = {}) {
         viewModelScope.launch {
-            _currentDevice = device
-            _currentDevice?.connect()
-            _currentDevice?.addListener(object : ConnectableDeviceListener {
-                override fun onDeviceReady(device: ConnectableDevice?) {
-                    onConnect()
-                }
+            _currentDevice = device 
+            if(_currentDevice?.isConnected == true) {
+                onConnect()
+            } else {
+                _currentDevice?.connect()
+                _currentDevice?.addListener(object : ConnectableDeviceListener {
+                    override fun onDeviceReady(device: ConnectableDevice?) {
+                        onConnect()
+                    }
 
-                override fun onDeviceDisconnected(device: ConnectableDevice?) {
-                    TODO("Not yet implemented")
-                }
+                    override fun onDeviceDisconnected(device: ConnectableDevice?) {
+                        TODO("Not yet implemented")
+                    }
 
-                override fun onPairingRequired(
-                    device: ConnectableDevice?,
-                    service: DeviceService?,
-                    pairingType: DeviceService.PairingType?
-                ) {
-                    TODO("Not yet implemented")
-                }
+                    override fun onPairingRequired(
+                        device: ConnectableDevice?,
+                        service: DeviceService?,
+                        pairingType: DeviceService.PairingType?
+                    ) {
+                        TODO("Not yet implemented")
+                    }
 
-                override fun onCapabilityUpdated(
-                    device: ConnectableDevice?,
-                    added: MutableList<String>?,
-                    removed: MutableList<String>?
-                ) {
-                    TODO("Not yet implemented")
-                }
+                    override fun onCapabilityUpdated(
+                        device: ConnectableDevice?,
+                        added: MutableList<String>?,
+                        removed: MutableList<String>?
+                    ) {
+                        TODO("Not yet implemented")
+                    }
 
-                override fun onConnectionFailed(
-                    device: ConnectableDevice?,
-                    error: ServiceCommandError?
-                ) {
-                    TODO("Not yet implemented")
-                }
-            })
+                    override fun onConnectionFailed(
+                        device: ConnectableDevice?,
+                        error: ServiceCommandError?
+                    ) {
+                        TODO("Not yet implemented")
+                    }
+                })
+            }
         }
     }
 

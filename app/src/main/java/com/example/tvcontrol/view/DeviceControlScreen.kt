@@ -32,7 +32,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +45,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.service.capability.KeyControl
+import com.connectsdk.service.capability.PowerControl
+import com.connectsdk.service.capability.TVControl
+import com.connectsdk.service.capability.VolumeControl
 import com.connectsdk.service.capability.listeners.ResponseListener
 import com.connectsdk.service.command.ServiceCommandError
 import com.example.tvcontrol.R
@@ -53,7 +60,7 @@ private val defaultResponseListener = object : ResponseListener<Any> {
     }
 
     override fun onSuccess(obj: Any?) {
-        //Log.d(DEBUG_TAG, obj.toString())
+        Log.d(DEBUG_TAG, obj.toString())
     }
 }
 
@@ -84,17 +91,17 @@ private fun ControlButtons(modifier: Modifier = Modifier, device: ConnectableDev
             horizontalAlignment = Alignment.CenterHorizontally,
             ) {
 
-            PowerControl()
+            PowerButton(device = device)
             DirectionalPad(device = device)
 
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                VolumeControl(device = device)
-                ChannelControl()
+                Volume(device = device)
+                ChannelControl(device = device)
             }
-            
+
             FunctionalButtons(device = device)
         }
     }
@@ -108,8 +115,11 @@ private fun FunctionalButtons(modifier: Modifier = Modifier, device: Connectable
         .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        FunctionalButton(onClick = { /*back*/ }, painter = painterResource(id = R.drawable.arrow_small_left_36))
-        FunctionalButton(onClick = { /*home*/ }, painter = painterResource(id = R.drawable.house_chimney_24))
+        FunctionalButton(onClick = { device?.getCapability(KeyControl::class.java)?.back(defaultResponseListener) },
+            painter = painterResource(id = R.drawable.arrow_small_left_36)
+        )
+        FunctionalButton(onClick = { device?.getCapability(KeyControl::class.java)?.home(defaultResponseListener) },
+            painter = painterResource(id = R.drawable.house_chimney_24))
     }
 }
 @Composable
@@ -117,12 +127,11 @@ private fun FunctionalButton(modifier: Modifier = Modifier,
                              onClick: () -> Unit,
                              painter: Painter,
                              contentDescription: String? = null,
-                             ) {
-
+                             )
+{
     IconButton(modifier = modifier
         .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape)
         .size(56.dp),
-
         onClick = onClick
     ) {
         Image(painter = painter, contentDescription = contentDescription)
@@ -208,40 +217,54 @@ private fun DirectionalPad(modifier: Modifier = Modifier, device: ConnectableDev
 }
 
 @Composable
-private fun PowerControl(modifier: Modifier = Modifier) {
+private fun PowerButton(modifier: Modifier = Modifier, device: ConnectableDevice?) {
+    var deviceEnabled by rememberSaveable {
+        mutableStateOf(true)
+    }
+    val scope = rememberCoroutineScope()
+
     Row(modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween) {
 
-        IconButton(onClick = { },
-            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Red),
-            modifier = Modifier.size(56.dp)) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = null)
-        }
-
-        IconButton(onClick = { },
-            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Red),
-            modifier = Modifier.size(56.dp)) {
+        IconButton(onClick = {
+            scope.launch {
+                if(deviceEnabled) device?.getCapability(PowerControl::class.java)?.powerOff(defaultResponseListener)
+                else device?.getCapability(PowerControl::class.java)?.powerOn(defaultResponseListener)
+            } },
+            //colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Red),
+            modifier = Modifier.size(56.dp))
+        {
             Icon(imageVector = Icons.Default.Close, contentDescription = null)
         }
     }
 }
 
 @Composable
-private fun ChannelControl(modifier: Modifier = Modifier) {
+private fun ChannelControl(modifier: Modifier = Modifier, device: ConnectableDevice?) {
     Column(modifier = modifier.background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
-        horizontalAlignment = Alignment.CenterHorizontally) {
+        horizontalAlignment = Alignment.CenterHorizontally)
+    {
+        val scope = rememberCoroutineScope()
 
-        IconButton(onClick = { /*Channel up*/ }) {
+        IconButton(onClick = { scope.launch {
+            device?.getCapability(com.connectsdk.service.capability.TVControl::class.java)
+                ?.channelUp(defaultResponseListener)
+        } })
+        {
             Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = null)
         }
         Text(text = "CH")
-        IconButton(onClick = { /*Channel up*/ }) {
+        IconButton(onClick = { scope.launch {
+            device?.getCapability(com.connectsdk.service.capability.TVControl::class.java)
+                ?.channelDown(defaultResponseListener)
+        } })
+        {
             Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null)
         }
     }
 }
 @Composable
-private fun VolumeControl(device: ConnectableDevice?, modifier: Modifier = Modifier) {
+private fun Volume(device: ConnectableDevice?, modifier: Modifier = Modifier) {
 
     val scope = rememberCoroutineScope()
 
@@ -250,7 +273,7 @@ private fun VolumeControl(device: ConnectableDevice?, modifier: Modifier = Modif
 
         IconButton(onClick = {
             scope.launch {
-                //device?.getCapability(VolumeControl::class.java)?.volumeUp(defaultResponseListener)
+                device?.getCapability(VolumeControl::class.java)?.volumeUp(defaultResponseListener)
             }
         }) {
             Image(painter = painterResource(id = R.drawable.plus_small_24), contentDescription = null)
@@ -258,7 +281,7 @@ private fun VolumeControl(device: ConnectableDevice?, modifier: Modifier = Modif
         Image(painter = painterResource(id = R.drawable.volume_24), contentDescription = null)
         IconButton(onClick = {
             scope.launch {
-                //device?.getCapability(VolumeControl::class.java)?.volumeDown(defaultResponseListener)
+                device?.getCapability(VolumeControl::class.java)?.volumeDown(defaultResponseListener)
             }
         }) {
             Image(painter = painterResource(id = R.drawable.minus_small_24), contentDescription = null)

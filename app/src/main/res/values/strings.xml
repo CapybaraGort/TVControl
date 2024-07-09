@@ -4,4 +4,5 @@
     <string name="search">Поиск</string>
     <string name="found_devices">Найденные устройства</string>
     <string name="devices">Устройства</string>
+    <string name="add">Добавить</string>
 </resources>

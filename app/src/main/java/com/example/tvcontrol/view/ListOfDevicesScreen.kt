@@ -1,7 +1,5 @@
 package com.example.tvcontrol.view
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,7 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,22 +22,18 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
-import androidx.navigation.compose.rememberNavController
 import com.connectsdk.device.ConnectableDevice
 import com.example.tvcontrol.R
-import com.example.tvcontrol.TVControlViewModel
-import com.example.tvcontrol.database.Device
-import com.example.tvcontrol.database.DeviceViewModel
+import com.example.tvcontrol.viewModels.TVControlViewModel
+import com.example.tvcontrol.database.device.Device
+import com.example.tvcontrol.viewModels.DeviceViewModel
 import kotlinx.coroutines.launch
 
 private val localParams = compositionLocalOf<ListOfDevicesParams> {
@@ -105,7 +98,7 @@ private fun Device(modifier: Modifier = Modifier, device: Device) {
             conDev?.let { params.connectToDevice(it, onDeviceConnected) }
         }
     }, shape = CircleShape, modifier = modifier) {
-        Text(text = device.modelName, style = MaterialTheme.typography.titleLarge)
+        Text(text = device.name, style = MaterialTheme.typography.titleLarge)
     }
 }
 

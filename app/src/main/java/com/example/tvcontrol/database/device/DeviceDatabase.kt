@@ -1,4 +1,4 @@
-package com.example.tvcontrol.database
+package com.example.tvcontrol.database.device
 
 import android.content.Context
 import androidx.room.Database
@@ -18,8 +18,7 @@ abstract class DeviceDatabase: RoomDatabase() {
                 val inst = Room.databaseBuilder(
                     context.applicationContext,
                     DeviceDatabase::class.java,
-                    "device_database.dp").fallbackToDestructiveMigration().build()
-
+                    "device_database.db").fallbackToDestructiveMigration().build()
                 instance = inst
                 inst
             }

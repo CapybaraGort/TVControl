@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.tvcontrol.TVControlViewModel
-import com.example.tvcontrol.database.DeviceViewModel
+import com.example.tvcontrol.viewModels.TVControlViewModel
+import com.example.tvcontrol.viewModels.DeviceViewModel
 import com.example.tvcontrol.destionations.ListOfDevices
 import com.example.tvcontrol.destionations.Search
 import kotlinx.coroutines.delay

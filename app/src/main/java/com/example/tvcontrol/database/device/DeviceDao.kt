@@ -1,8 +1,9 @@
-package com.example.tvcontrol.database
+package com.example.tvcontrol.database.device
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 
@@ -16,6 +17,9 @@ interface DeviceDao {
 
     @Delete
     suspend fun delete(device: Device)
+
+    @Query("DELETE FROM device_table")
+    suspend fun deleteAll()
 
     @Query("SELECT * FROM device_table WHERE id = :id")
     suspend fun getDeviceById(id: Int): Device
