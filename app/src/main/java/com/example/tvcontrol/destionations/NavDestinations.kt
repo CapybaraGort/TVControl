@@ -17,3 +17,6 @@ object ListOfDevices
 @Serializable
 object AddDevice
 
+@Serializable
+object Debug
+

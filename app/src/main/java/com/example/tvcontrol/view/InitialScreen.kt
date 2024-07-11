@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.tvcontrol.destionations.Debug
 import com.example.tvcontrol.viewModels.TVControlViewModel
 import com.example.tvcontrol.viewModels.DeviceViewModel
 import com.example.tvcontrol.destionations.ListOfDevices

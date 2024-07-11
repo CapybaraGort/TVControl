@@ -37,7 +37,7 @@ import com.example.tvcontrol.viewModels.DeviceViewModel
 import kotlinx.coroutines.launch
 
 private val localParams = compositionLocalOf<ListOfDevicesParams> {
-    error("onDeviceConnected not provided")
+    error("ListOfDevicesParams not provided")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

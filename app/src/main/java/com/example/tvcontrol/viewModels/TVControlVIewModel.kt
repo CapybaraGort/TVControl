@@ -58,6 +58,7 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
                 DiscoveryManager.init(app.applicationContext)
                 discoveryManager = DiscoveryManager.getInstance()
                 discoveryManager?.start()
+                discoveryManager?.pairingLevel = DiscoveryManager.PairingLevel.ON
                 discoveryManager?.addListener(object : DiscoveryManagerListener {
                     override fun onDeviceAdded(manager: DiscoveryManager?, device: ConnectableDevice?) {
                         device?.let {

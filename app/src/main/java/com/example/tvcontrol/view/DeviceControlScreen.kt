@@ -42,11 +42,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.connectsdk.core.MediaInfo
 import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.service.capability.KeyControl
+import com.connectsdk.service.capability.MediaControl
+import com.connectsdk.service.capability.MediaControl.DurationListener
+import com.connectsdk.service.capability.MediaPlayer
+import com.connectsdk.service.capability.MediaPlayer.LaunchListener
 import com.connectsdk.service.capability.PowerControl
-import com.connectsdk.service.capability.TVControl
 import com.connectsdk.service.capability.VolumeControl
 import com.connectsdk.service.capability.listeners.ResponseListener
 import com.connectsdk.service.command.ServiceCommandError
@@ -67,22 +72,29 @@ private val defaultResponseListener = object : ResponseListener<Any> {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceControlScreen(modifier: Modifier = Modifier, device: ConnectableDevice?, onNavigateBack: () -> Unit) {
+    var currentScreen by rememberSaveable {
+        mutableStateOf(Screen.Remote)
+    }
+    val scope = rememberCoroutineScope()
+
     Scaffold(modifier = modifier.windowInsetsPadding(WindowInsets.systemBars),
         topBar = { TopAppBar(title = {
             Row {
-                IconButton(onClick = onNavigateBack,
+                IconButton(onClick = { scope.launch { onNavigateBack() } },
                     modifier = Modifier.background(MaterialTheme.colorScheme.tertiary, shape = CircleShape)
                 ) {
                     Image(painter = painterResource(id = R.drawable.arrow_small_left_36), contentDescription = null)
                 }
             }
         })}) { innerPadding ->
-        ControlButtons(modifier = Modifier.padding(innerPadding), device = device)
+        when(currentScreen) {
+            Screen.Remote -> RemoteControl(modifier = Modifier.padding(innerPadding), device = device)
+        }
     }
 }
 
 @Composable
-private fun ControlButtons(modifier: Modifier = Modifier, device: ConnectableDevice?) {
+private fun RemoteControl(modifier: Modifier = Modifier, device: ConnectableDevice?) {
     Box(modifier = modifier
         .fillMaxSize()
         .padding(16.dp), contentAlignment = Alignment.Center) {
@@ -210,7 +222,7 @@ private fun DirectionalPad(modifier: Modifier = Modifier, device: ConnectableDev
                 .size(50.dp)
                 .padding(4.dp)) {
 
-            Icon(imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = "")
+            Icon(imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = null)
         }
 
     }
@@ -228,10 +240,16 @@ private fun PowerButton(modifier: Modifier = Modifier, device: ConnectableDevice
 
         IconButton(onClick = {
             scope.launch {
-                if(deviceEnabled) device?.getCapability(PowerControl::class.java)?.powerOff(defaultResponseListener)
-                else device?.getCapability(PowerControl::class.java)?.powerOn(defaultResponseListener)
+                if(deviceEnabled) {
+                    device?.getCapability(PowerControl::class.java)?.powerOff(defaultResponseListener)
+                    deviceEnabled = false
+                }
+                else {
+                    device?.getCapability(PowerControl::class.java)?.powerOn(defaultResponseListener)
+                    deviceEnabled = true
+                }
             } },
-            //colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Red),
+            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Red),
             modifier = Modifier.size(56.dp))
         {
             Icon(imageVector = Icons.Default.Close, contentDescription = null)
@@ -287,5 +305,9 @@ private fun Volume(device: ConnectableDevice?, modifier: Modifier = Modifier) {
             Image(painter = painterResource(id = R.drawable.minus_small_24), contentDescription = null)
         }
     }
+}
+
+private enum class Screen {
+    Remote
 }
 

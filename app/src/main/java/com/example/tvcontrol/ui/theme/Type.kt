@@ -1,4 +1,4 @@
-package com.example.ui.theme
+package com.example.tvcontrol.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
@@ -15,14 +15,14 @@ val provider = GoogleFont.Provider(
 
 val bodyFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Lato"),
+        googleFont = GoogleFont("Open Sans"),
         fontProvider = provider,
     )
 )
 
 val displayFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Montserrat"),
+        googleFont = GoogleFont("Exo 2"),
         fontProvider = provider,
     )
 )

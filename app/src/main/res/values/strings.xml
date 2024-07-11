@@ -5,4 +5,6 @@
     <string name="found_devices">Найденные устройства</string>
     <string name="devices">Устройства</string>
     <string name="add">Добавить</string>
+    <string name="remote">Пульт</string>
+    <string name="media">Медиа</string>
 </resources>
