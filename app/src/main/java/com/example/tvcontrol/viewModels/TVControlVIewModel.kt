@@ -8,7 +8,9 @@ import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.device.ConnectableDeviceListener
 import com.connectsdk.discovery.DiscoveryManager
 import com.connectsdk.discovery.DiscoveryManagerListener
+import com.connectsdk.service.CastService
 import com.connectsdk.service.DeviceService
+import com.connectsdk.service.capability.TVControl
 import com.connectsdk.service.command.ServiceCommandError
 import com.example.tvcontrol.TVControlState
 import com.example.tvcontrol.database.device.Device
@@ -73,7 +75,6 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
                                 } else {
                                     Log.e(DEBUG_TAG, "error")
                                 }
-
                             }
                         }
                     }

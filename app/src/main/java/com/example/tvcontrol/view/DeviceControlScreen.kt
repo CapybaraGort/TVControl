@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,17 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.connectsdk.core.MediaInfo
 import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.service.capability.KeyControl
-import com.connectsdk.service.capability.MediaControl
-import com.connectsdk.service.capability.MediaControl.DurationListener
-import com.connectsdk.service.capability.MediaPlayer
-import com.connectsdk.service.capability.MediaPlayer.LaunchListener
 import com.connectsdk.service.capability.PowerControl
 import com.connectsdk.service.capability.VolumeControl
+import com.connectsdk.service.capability.VolumeControl.MuteListener
 import com.connectsdk.service.capability.listeners.ResponseListener
 import com.connectsdk.service.command.ServiceCommandError
 import com.example.tvcontrol.R
@@ -121,6 +117,19 @@ private fun RemoteControl(modifier: Modifier = Modifier, device: ConnectableDevi
 
 @Composable
 private fun FunctionalButtons(modifier: Modifier = Modifier, device: ConnectableDevice?) {
+    device?.getCapability(VolumeControl::class.java)?.getMute(object : MuteListener {
+        override fun onError(error: ServiceCommandError?) {
+        }
+
+        override fun onSuccess(isMute: Boolean?) {
+            Log.d(DEBUG_TAG, isMute.toString())
+        }
+    })
+
+    var volumeImage by rememberSaveable {
+        mutableStateOf(0)
+    }
+
     Row (modifier = modifier
         .fillMaxWidth()
         .padding(top = 32.dp)
@@ -132,6 +141,12 @@ private fun FunctionalButtons(modifier: Modifier = Modifier, device: Connectable
         )
         FunctionalButton(onClick = { device?.getCapability(KeyControl::class.java)?.home(defaultResponseListener) },
             painter = painterResource(id = R.drawable.house_chimney_24))
+
+        FunctionalButton(onClick = {
+            //device?.getCapability(VolumeControl::class.java)?.setMute(!isMute, defaultResponseListener)
+            //isMute = !isMute
+                                   },
+            painter = painterResource(id = R.drawable.volume_36))
     }
 }
 @Composable
@@ -141,10 +156,11 @@ private fun FunctionalButton(modifier: Modifier = Modifier,
                              contentDescription: String? = null,
                              )
 {
+    val scope = rememberCoroutineScope()
     IconButton(modifier = modifier
         .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape)
         .size(56.dp),
-        onClick = onClick
+        onClick = { scope.launch { onClick() } }
     ) {
         Image(painter = painter, contentDescription = contentDescription)
     }
