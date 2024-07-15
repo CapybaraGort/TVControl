@@ -46,11 +46,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.service.capability.KeyControl
+import com.connectsdk.service.capability.Launcher
+import com.connectsdk.service.capability.Launcher.AppLaunchListener
 import com.connectsdk.service.capability.PowerControl
 import com.connectsdk.service.capability.VolumeControl
 import com.connectsdk.service.capability.VolumeControl.MuteListener
 import com.connectsdk.service.capability.listeners.ResponseListener
 import com.connectsdk.service.command.ServiceCommandError
+import com.connectsdk.service.sessions.LaunchSession
 import com.example.tvcontrol.R
 import kotlinx.coroutines.launch
 
@@ -320,6 +323,21 @@ private fun Volume(device: ConnectableDevice?, modifier: Modifier = Modifier) {
         }) {
             Image(painter = painterResource(id = R.drawable.minus_small_24), contentDescription = null)
         }
+    }
+}
+
+@Composable
+private fun Apps(modifier: Modifier, device: ConnectableDevice?) {
+    Button(onClick = { device?.getCapability(Launcher::class.java)?.launchYouTube("",
+        object : AppLaunchListener {
+            override fun onError(error: ServiceCommandError?) {
+                Log.d(DEBUG_TAG, error?.message.toString())
+            }
+
+            override fun onSuccess(`object`: LaunchSession?) {
+            }
+        }) }) {
+        Text(text = "you")
     }
 }
 
