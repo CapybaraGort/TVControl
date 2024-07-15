@@ -59,6 +59,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.intercom.sdk)
+    implementation(libs.firebase.messaging)
     implementation(libs.androidx.runtime.livedata)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)

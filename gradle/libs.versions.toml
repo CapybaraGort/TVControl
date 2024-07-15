@@ -1,6 +1,8 @@
 [versions]
 agp = "8.5.0"
 connectSdkAndroidCore = "2.0.0"
+firebaseMessaging = "24.0.0"
+intercomSdk = "15.9.1"
 kotlinxSerializationJson = "1.6.3"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
@@ -18,6 +20,8 @@ roomCompiler = "2.6.1"
 runtimeLivedata = "1.6.8"
 
 [libraries]
+firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
+intercom-sdk = { module = "io.intercom.android:intercom-sdk", version.ref = "intercomSdk" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

@@ -12,26 +12,37 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.connectsdk.device.ConnectableDevice
 import com.example.tvcontrol.viewModels.TVControlViewModel
+import io.intercom.android.sdk.Intercom
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListOfFoundDevices(modifier: Modifier = Modifier,
                        viewModel: TVControlViewModel,
                        onDeviceConnected: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
-    Scaffold(modifier = modifier) { innerPadding ->
+    Scaffold(modifier = modifier, topBar = {
+        TopAppBar(title = {
+            Button(onClick = { scope.launch { Intercom.client().present() } }
+            ) {
+    } })}) { innerPadding ->
         LazyColumn(modifier = Modifier
             .padding(innerPadding)
             .windowInsetsPadding(WindowInsets.systemBars)
