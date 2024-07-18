@@ -30,12 +30,12 @@ import com.example.tvcontrol.R
 
 
 @Composable
-public fun CustomButton(text: String) {
+public fun CustomButton(modifier: Modifier = Modifier, onClick: () -> Unit, text: String) {
     Button(
-        onClick = {},
+        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         contentPadding = PaddingValues(16.dp),
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 48.dp)
             .width(420.dp),
         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
@@ -224,9 +224,9 @@ fun NumberedListItem(index: Int, text: String) {
 }
 
 @Composable
-fun Recommendations() {
+fun Recommendations(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(16.dp)
