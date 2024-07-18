@@ -16,6 +16,7 @@ import com.example.tvcontrol.debug.DebugViewModelFactory
 import com.example.tvcontrol.ui.theme.AppTheme
 import com.example.tvcontrol.ui.theme.MyStyle
 import com.example.tvcontrol.view.CustomNavHost
+import com.example.tvcontrol.view.Home
 import com.example.tvcontrol.viewModels.DeviceViewModel
 import com.example.tvcontrol.viewModels.TVControlViewModel
 import com.example.tvcontrol.viewModels.factories.DeviceViewModelFactory
@@ -36,9 +37,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 //DebugScreen(debugViewModel = debugViewModel)
-                CustomNavHost(tvControlViewModel, deviceViewModel)
+                //CustomNavHost(tvControlViewModel, deviceViewModel)
 
-
+                Home()
             }
         }
     }
