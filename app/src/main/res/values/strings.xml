@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TVControl</string>
-    <string name="search">Поиск</string>
-    <string name="found_devices">Найденные устройства</string>
     <string name="devices">Устройства</string>
-    <string name="add">Добавить</string>
-    <string name="remote">Пульт</string>
-    <string name="media">Медиа</string>
+    <string name="app_language_title">Язык приложения</string>
+    <string name="start">Начать</string>
+    <string name="searhing">Поиск</string>
+    <string name="make_your_phone_a_remote">Сделайте из своего смартфона пульт от телевизора!</string>
+    <string name="select_a_device">Выберите устройство</string>
+    <string name="devices_not_found">Устройства не найдены</string>
+    <string name="refresh">Обновить</string>
+    <string name="save_device">Сохранить устройство</string>
+    <string name="device_name">Имя устройства</string>
+    <string name="save">Сохранить</string>
+    <string name="device_name_connected">Устройтво %1$s подключено</string>
+    <string name="save_recommendation">Пульт дистанционного управления подключен к вашему ТВ. Сохраните его для использования в будущем</string>
+    <string name="make_sure">Убедитесь, что</string>
+    <string name="wifi_recommendation">Ваш смартфон и ТВ подключены к одной сети Wi-Fi</string>
+    <string name="tv_on_recommendation">Ваш ТВ включен</string>
+    <string name="vpn_recommendation">На вашем смартфоне выключен VPN</string>
+    <string name="change">Изменить</string>
+    <string name="delete">Удалить</string>
+    <string name="device">Устройство</string>
 </resources>

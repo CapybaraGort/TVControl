@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TVControl</string>
-    <string name="search">Search</string>
-    <string name="found_devices">Found devices</string>
     <string name="devices">Devices</string>
-    <string name="add">Add</string>
-    <string name="remote">Remote</string>
-    <string name="media">Media</string>
+    <string name="app_language_title">Application language</string>
+    <string name="make_your_phone_a_remote">Make your smartphone a TV remote control!</string>
+    <string name="start">Start</string>
+    <string name="searhing">Searching</string>
+    <string name="select_a_device">Select a device</string>
+    <string name="devices_not_found">Devices not found</string>
+    <string name="refresh">Refresh</string>
+    <string name="save_device">Save device</string>
+    <string name="device_name">Device name</string>
+    <string name="save">Save</string>
+    <string name="device_name_connected">Device %1$s connected</string>
+    <string name="save_recommendation">The remote control is connected to your TV. Save it for future use</string>
+    <string name="make_sure">Make sure</string>
+    <string name="wifi_recommendation">Your smartphone and TV are connected to the same Wi-Fi network</string>
+    <string name="tv_on_recommendation">Your TV\'s on</string>
+    <string name="vpn_recommendation">VPN is turned off on your smartphone</string>
+    <string name="change">Change</string>
+    <string name="delete">Delete</string>
+    <string name="device">Device</string>
 </resources>

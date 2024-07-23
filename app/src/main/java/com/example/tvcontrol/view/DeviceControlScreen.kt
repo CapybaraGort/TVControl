@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -30,11 +32,11 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -43,18 +45,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.connectsdk.core.TextInputStatusInfo
 import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.service.capability.KeyControl
 import com.connectsdk.service.capability.Launcher
 import com.connectsdk.service.capability.Launcher.AppLaunchListener
 import com.connectsdk.service.capability.PowerControl
+import com.connectsdk.service.capability.TextInputControl
+import com.connectsdk.service.capability.TextInputControl.TextInputStatusListener
 import com.connectsdk.service.capability.VolumeControl
 import com.connectsdk.service.capability.VolumeControl.MuteListener
 import com.connectsdk.service.capability.listeners.ResponseListener
 import com.connectsdk.service.command.ServiceCommandError
 import com.connectsdk.service.sessions.LaunchSession
 import com.example.tvcontrol.R
+import com.example.tvcontrol.ui.theme.MyStyle
 import kotlinx.coroutines.launch
 
 private const val DEBUG_TAG = "DeviceControlLog"
@@ -94,13 +101,16 @@ fun DeviceControlScreen(modifier: Modifier = Modifier, device: ConnectableDevice
 
 @Composable
 private fun RemoteControl(modifier: Modifier = Modifier, device: ConnectableDevice?) {
+    val scrollState = rememberScrollState()
     Box(modifier = modifier
         .fillMaxSize()
-        .padding(16.dp), contentAlignment = Alignment.Center) {
-
-        Column(modifier = Modifier.fillMaxSize(),
+        .padding(16.dp), contentAlignment = Alignment.Center
+    ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+        ) {
 
             PowerButton(device = device)
             DirectionalPad(device = device)
@@ -114,6 +124,8 @@ private fun RemoteControl(modifier: Modifier = Modifier, device: ConnectableDevi
             }
 
             FunctionalButtons(device = device)
+            Keyboard(device = device)
+            Apps(device = device)
         }
     }
 }
@@ -142,22 +154,50 @@ private fun FunctionalButtons(modifier: Modifier = Modifier, device: Connectable
         FunctionalButton(onClick = { device?.getCapability(KeyControl::class.java)?.back(defaultResponseListener) },
             painter = painterResource(id = R.drawable.arrow_small_left_36)
         )
-        FunctionalButton(onClick = { device?.getCapability(KeyControl::class.java)?.home(defaultResponseListener) },
-            painter = painterResource(id = R.drawable.house_chimney_24))
+        /*FunctionalButton(onClick = { device?.getCapability(KeyControl::class.java)?.home(defaultResponseListener) },
+            painter = painterResource(id = R.drawable.house_chimney_24))*/
 
         FunctionalButton(onClick = {
             //device?.getCapability(VolumeControl::class.java)?.setMute(!isMute, defaultResponseListener)
             //isMute = !isMute
-                                   },
-            painter = painterResource(id = R.drawable.volume_36))
+        },
+            painter = painterResource(id = R.drawable.volume_24))
+
     }
 }
+
+val textInputStatusListener = object : TextInputStatusListener {
+    override fun onError(error: ServiceCommandError?) {
+        Log.d(DEBUG_TAG, error?.message.toString())
+    }
+
+    override fun onSuccess(status : TextInputStatusInfo?) {
+        Log.d(DEBUG_TAG, status.toString())
+    }
+}
+
+@Composable
+private fun Keyboard(device: ConnectableDevice?) {
+    val scope = rememberCoroutineScope()
+    device?.getCapability(TextInputControl::class.java)?.subscribeTextInputStatus(textInputStatusListener)
+
+    Row {
+        TextField(value = "", onValueChange = { char ->
+            scope.launch {
+                device?.getCapability(TextInputControl::class.java)?.sendText(char)
+            }
+        })
+        Button(onClick = { device?.getCapability(TextInputControl::class.java)?.sendEnter() }) {
+        }
+    }
+}
+
 @Composable
 private fun FunctionalButton(modifier: Modifier = Modifier,
                              onClick: () -> Unit,
                              painter: Painter,
                              contentDescription: String? = null,
-                             )
+)
 {
     val scope = rememberCoroutineScope()
     IconButton(modifier = modifier
@@ -169,14 +209,15 @@ private fun FunctionalButton(modifier: Modifier = Modifier,
     }
 }
 
+
+@Preview(showSystemUi = true)
 @Composable
-private fun DirectionalPad(modifier: Modifier = Modifier, device: ConnectableDevice?) {
+private fun DirectionalPad(modifier: Modifier = Modifier, device: ConnectableDevice? = null) {
     val scope = rememberCoroutineScope()
 
     Box(modifier = modifier
         .size(200.dp)
         .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape)) {
-
         Button(
             onClick = {
                 scope.launch {
@@ -243,7 +284,6 @@ private fun DirectionalPad(modifier: Modifier = Modifier, device: ConnectableDev
 
             Icon(imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = null)
         }
-
     }
 }
 
@@ -307,7 +347,6 @@ private fun Volume(device: ConnectableDevice?, modifier: Modifier = Modifier) {
 
     Column(modifier = modifier.background(color = MaterialTheme.colorScheme.primary, shape = CircleShape),
         horizontalAlignment = Alignment.CenterHorizontally) {
-
         IconButton(onClick = {
             scope.launch {
                 device?.getCapability(VolumeControl::class.java)?.volumeUp(defaultResponseListener)
@@ -327,14 +366,15 @@ private fun Volume(device: ConnectableDevice?, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Apps(modifier: Modifier, device: ConnectableDevice?) {
+private fun Apps(modifier: Modifier = Modifier, device: ConnectableDevice?) {
     Button(onClick = { device?.getCapability(Launcher::class.java)?.launchYouTube("",
         object : AppLaunchListener {
             override fun onError(error: ServiceCommandError?) {
                 Log.d(DEBUG_TAG, error?.message.toString())
             }
 
-            override fun onSuccess(`object`: LaunchSession?) {
+            override fun onSuccess(session: LaunchSession?) {
+                Log.d(DEBUG_TAG, session.toString())
             }
         }) }) {
         Text(text = "you")

@@ -26,6 +26,10 @@ class DeviceViewModel(application: Application): AndroidViewModel(application) {
         deviceDao.insert(dev)
         fetchDatabase()
     }
+    fun insertDevice(device: Device) = viewModelScope.launch {
+        deviceDao.insert(device)
+        fetchDatabase()
+    }
 
     fun updateDevice(device: Device) = viewModelScope.launch {
         deviceDao.update(device)
@@ -50,8 +54,8 @@ class DeviceViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    suspend fun existsDevice(device: ConnectableDevice): Boolean {
-        return deviceDao.existsDevice(device.modelName)
+    suspend fun existsDevice(modelName: String): Boolean {
+        return deviceDao.existsDevice(modelName)
     }
 
     private fun fetchDatabase() = viewModelScope.launch {

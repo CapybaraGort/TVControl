@@ -59,6 +59,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.gson)
     implementation(libs.intercom.sdk)
     implementation(libs.firebase.messaging)
     implementation(libs.androidx.runtime.livedata)

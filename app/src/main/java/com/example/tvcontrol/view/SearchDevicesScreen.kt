@@ -25,51 +25,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.connectsdk.device.ConnectableDevice
+import com.example.tvcontrol.view.page.ConnectionErrorPage
+import com.example.tvcontrol.view.page.SearchTvPage
+import com.example.tvcontrol.view.page.TVSelectList
 import com.example.tvcontrol.viewModels.TVControlViewModel
 import io.intercom.android.sdk.Intercom
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun ListOfFoundDevices(modifier: Modifier = Modifier,
-                       viewModel: TVControlViewModel,
-                       onDeviceConnected: () -> Unit
+fun SearchScreen(
+    tvControlViewModel: TVControlViewModel,
+    onDeviceConnected: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val scope = rememberCoroutineScope()
+    val uiState by tvControlViewModel.uiState.collectAsState()
 
-    Scaffold(modifier = modifier, topBar = {
-        TopAppBar(title = {
-            Button(onClick = { scope.launch { Intercom.client().present() } }
-            ) {
-    } })}) { innerPadding ->
-        LazyColumn(modifier = Modifier
-            .padding(innerPadding)
-            .windowInsetsPadding(WindowInsets.systemBars)
-            .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-
-            items(uiState.devices) { device ->
-                Device(device = device, connectToDevice = {viewModel.connectToDevice(device, onConnect = {
-                    onDeviceConnected()
-                })})
-            }
-        }
-    }
-}
-
-@Composable
-private fun Device(modifier: Modifier = Modifier, device: ConnectableDevice,
-                   connectToDevice: (ConnectableDevice) -> Unit) {
-    Button(
-        onClick = {
-            connectToDevice(device)
-        },
-        modifier = modifier.width(330.dp),
-        shape = CircleShape
-    ) {
-        Row(modifier = Modifier.padding(8.dp)) {
-            Text(text = device.friendlyName.toString(), style = MaterialTheme.typography.titleLarge)
-        }
+    if (uiState.devices.isEmpty()) {
+        SearchTvPage()
+    } else if (uiState.devices.size > 0) {
+        TVSelectList(
+            devices = uiState.devices,
+            onClickToDevice = tvControlViewModel::connectToDevice,
+            onDeviceConnected = onDeviceConnected
+        )
+    } else if (uiState.error != null) {
+        ConnectionErrorPage(tvControlViewModel::startDiscovery)
     }
 }

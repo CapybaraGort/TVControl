@@ -8,22 +8,16 @@ import com.connectsdk.device.ConnectableDevice
 import com.connectsdk.device.ConnectableDeviceListener
 import com.connectsdk.discovery.DiscoveryManager
 import com.connectsdk.discovery.DiscoveryManagerListener
-import com.connectsdk.service.CastService
 import com.connectsdk.service.DeviceService
-import com.connectsdk.service.capability.TVControl
 import com.connectsdk.service.command.ServiceCommandError
 import com.example.tvcontrol.TVControlState
 import com.example.tvcontrol.database.device.Device
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
-private const val DEBUG_TAG = "TVControlViewModelLog"
-
 class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
     private val _uiState = MutableStateFlow(TVControlState())
     val uiState: StateFlow<TVControlState> = _uiState
-    private var discoveryStarted = false
     private var discoveryManager: DiscoveryManager? = null
     private var _currentDevice: ConnectableDevice? = null
     val currentDevice
@@ -40,7 +34,7 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private fun removeDuplicates(device: ConnectableDevice) {
         val duplicate = _uiState.value.devices.find { it.ipAddress == device.ipAddress }
-        if((device.capabilities?.size ?: 0) > (duplicate?.capabilities?.size ?: 0))  {
+        if ((device.capabilities?.size ?: 0) > (duplicate?.capabilities?.size ?: 0)) {
             duplicate?.let {
                 _uiState.value = _uiState.value.copy(
                     devices = (_uiState.value.devices - it)
@@ -52,66 +46,65 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
             )
         }
     }
+    fun setCurrentDevice(device: ConnectableDevice?)  {
+        _currentDevice = device
+    }
 
     fun startDiscovery() {
-        if(!discoveryStarted) {
-            discoveryStarted = true
-            viewModelScope.launch {
-                DiscoveryManager.init(app.applicationContext)
-                discoveryManager = DiscoveryManager.getInstance()
-                discoveryManager?.start()
-                discoveryManager?.pairingLevel = DiscoveryManager.PairingLevel.ON
-                discoveryManager?.addListener(object : DiscoveryManagerListener {
-                    override fun onDeviceAdded(manager: DiscoveryManager?, device: ConnectableDevice?) {
-                        device?.let {
-                            Log.d(DEBUG_TAG, "${it.modelName}: ${it.capabilities}")
-                            viewModelScope.launch {
-                                if (!checkDuplicates(it)) {
-                                    _uiState.value = _uiState.value.copy(
-                                        devices = (_uiState.value.devices + it)
-                                    )
-                                } else if (checkDuplicates(it)) {
-                                    removeDuplicates(it)
-                                } else {
-                                    Log.e(DEBUG_TAG, "error")
-                                }
-                            }
-                        }
-                    }
-
-                    override fun onDeviceUpdated(
-                        manager: DiscoveryManager?,
-                        device: ConnectableDevice?
-                    ) {
-
-                    }
-
-                    override fun onDeviceRemoved(
-                        manager: DiscoveryManager?,
-                        device: ConnectableDevice?
-                    ) {
-                        device?.let {
-                            viewModelScope.launch {
-                                _uiState.value = _uiState.value.copy(
-                                    devices = (_uiState.value.devices - it)
-                                )
-                            }
-                        }
-                    }
-
-                    override fun onDiscoveryFailed(
-                        manager: DiscoveryManager?,
-                        error: ServiceCommandError?
-                    ) {
+        viewModelScope.launch {
+            DiscoveryManager.init(app.applicationContext)
+            discoveryManager = DiscoveryManager.getInstance()
+            discoveryManager?.start()
+            discoveryManager?.pairingLevel = DiscoveryManager.PairingLevel.ON
+            discoveryManager?.addListener(object : DiscoveryManagerListener {
+                override fun onDeviceAdded(manager: DiscoveryManager?, device: ConnectableDevice?) {
+                    device?.let {
+                        Log.d(
+                            DEBUG_TAG,
+                            "${it.modelName}: ${it.capabilities.size} ${it.capabilities}"
+                        )
                         viewModelScope.launch {
-                            val errorMessage =
-                                "Discovery failed: ${error?.message}, Code: ${error?.code}"
-                            _uiState.value = _uiState.value.copy(error = errorMessage)
-                            Log.e(DEBUG_TAG, errorMessage)
+                            _uiState.value = _uiState.value.copy(
+                                devices = (_uiState.value.devices + it)
+                            )
                         }
                     }
-                })
-            }
+                    if (_uiState.value.error != null)
+                        _uiState.value = _uiState.value.copy(error = null)
+                }
+
+                override fun onDeviceUpdated(
+                    manager: DiscoveryManager?,
+                    device: ConnectableDevice?
+                ) {
+                    _uiState.value = _uiState.value.copy(error = null)
+                }
+
+                override fun onDeviceRemoved(
+                    manager: DiscoveryManager?,
+                    device: ConnectableDevice?
+                ) {
+                    device?.let {
+                        viewModelScope.launch {
+                            _uiState.value = _uiState.value.copy(
+                                devices = (_uiState.value.devices - it)
+                            )
+                        }
+                    }
+                }
+
+                override fun onDiscoveryFailed(
+                    manager: DiscoveryManager?,
+                    error: ServiceCommandError?
+                ) {
+                    viewModelScope.launch {
+                        val errorMessage =
+                            "Discovery failed: ${error?.message}, Code: ${error?.code}"
+                        _uiState.value = _uiState.value.copy(error = errorMessage)
+                        Log.e(DEBUG_TAG, errorMessage)
+                    }
+                }
+            })
         }
     }
 
@@ -119,10 +112,10 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
         _currentDevice = null
     }
 
-    fun connectToDevice(device: ConnectableDevice, onConnect : () -> Unit = {}) {
+    fun connectToDevice(device: ConnectableDevice, onConnect: () -> Unit = {}) {
         viewModelScope.launch {
-            _currentDevice = device 
-            if(_currentDevice?.isConnected == true) {
+            _currentDevice = device
+            if (_currentDevice?.isConnected == true) {
                 onConnect()
             } else {
                 _currentDevice?.connect()
@@ -132,7 +125,7 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
                     }
 
                     override fun onDeviceDisconnected(device: ConnectableDevice?) {
-                        TODO("Not yet implemented")
+
                     }
 
                     override fun onPairingRequired(
@@ -140,7 +133,7 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
                         service: DeviceService?,
                         pairingType: DeviceService.PairingType?
                     ) {
-                        TODO("Not yet implemented")
+                        device?.onPairingSuccess(service)
                     }
 
                     override fun onCapabilityUpdated(
@@ -148,14 +141,14 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
                         added: MutableList<String>?,
                         removed: MutableList<String>?
                     ) {
-                        TODO("Not yet implemented")
+
                     }
 
                     override fun onConnectionFailed(
                         device: ConnectableDevice?,
                         error: ServiceCommandError?
                     ) {
-                        TODO("Not yet implemented")
+                        Log.e(DEBUG_TAG, "${device?.modelName}: ${error?.message}")
                     }
                 })
             }
@@ -167,3 +160,6 @@ class TVControlViewModel(private val app: Application) : AndroidViewModel(app) {
         discoveryManager?.stop()
     }
 }
+
+private const val DEBUG_TAG = "TVControlViewModelLog"
+

@@ -17,27 +17,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.tvcontrol.destionations.Debug
-import com.example.tvcontrol.viewModels.TVControlViewModel
+import com.example.tvcontrol.destionations.Hello
+import com.example.tvcontrol.destionations.Menu
 import com.example.tvcontrol.viewModels.DeviceViewModel
-import com.example.tvcontrol.destionations.ListOfDevices
-import com.example.tvcontrol.destionations.Search
+import com.example.tvcontrol.viewModels.TVControlViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
-fun InitialScreen(navController: NavHostController, deviceViewModel: DeviceViewModel, tvControlViewModel: TVControlViewModel) {
+fun InitialScreen(
+    navController: NavHostController,
+    deviceViewModel: DeviceViewModel,
+    tvControlViewModel: TVControlViewModel
+) {
     var isLoading by remember { mutableStateOf(true) }
     val allDevices by deviceViewModel.allDevices.observeAsState()
 
     LaunchedEffect(Unit) {
         tvControlViewModel.startDiscovery()
-        withTimeoutOrNull(5000) {
-            while (tvControlViewModel.uiState.value.devices.isEmpty()){
+        withTimeoutOrNull(200) {
+            while (tvControlViewModel.uiState.value.devices.isEmpty()) {
                 delay(100)
             }
         }
-        val destination: Any = if (allDevices?.isEmpty() == true) Search else ListOfDevices
+        val destination: Any = if (allDevices?.isEmpty() == true) Hello else Menu
         navController.navigate(destination) {
             popUpTo(navController.graph.startDestinationId) {
                 inclusive = true
@@ -47,8 +50,13 @@ fun InitialScreen(navController: NavHostController, deviceViewModel: DeviceViewM
         isLoading = false
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-        if(isLoading)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isLoading)
             CircularProgressIndicator(modifier = Modifier.size(56.dp))
     }
 }

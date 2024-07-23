@@ -12,11 +12,10 @@ object Search
 object DeviceControl
 
 @Serializable
-object ListOfDevices
+object Menu
+
+/*@Serializable
+object SaveDevice*/
 
 @Serializable
-object AddDevice
-
-@Serializable
-object Debug
-
+object Hello
