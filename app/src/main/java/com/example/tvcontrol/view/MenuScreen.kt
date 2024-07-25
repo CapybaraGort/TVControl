@@ -1,5 +1,8 @@
 package com.example.tvcontrol.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -11,7 +14,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,30 +40,41 @@ fun MenuScreen(
     deviceViewModel: DeviceViewModel,
     navController: NavHostController
 ) {
-    Scaffold(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
-        topBar = {
-            DevicesTopBar()
-        },
-        floatingActionButton = {
-            Button(
-                onClick = { navController.navigate(Search) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.plus_small_24),
-                    contentDescription = "add device"
-                )
-            }
-        }
-    ) { innerPadding ->
-        DevicesListPage(
-            modifier = Modifier.padding(innerPadding),
-            deviceViewModel = deviceViewModel,
-            tvControlViewModel = tvControlViewModel,
-            navController = navController
-        )
+    var visible by remember { mutableStateOf(false ) }
+    LaunchedEffect(Unit) {
+        visible = true
     }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInHorizontally()
+    ) {
+        Scaffold(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
+            topBar = {
+                DevicesTopBar()
+            },
+            floatingActionButton = {
+                Button(
+                    onClick = { navController.navigate(Search) },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onTertiary)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.plus_small_24),
+                        contentDescription = "add device"
+                    )
+                }
+            }
+        ) { innerPadding ->
+            DevicesListPage(
+                modifier = Modifier.padding(innerPadding),
+                deviceViewModel = deviceViewModel,
+                tvControlViewModel = tvControlViewModel,
+                navController = navController
+            )
+        }
+    }
+
 }
 
 @Composable

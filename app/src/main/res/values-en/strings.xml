@@ -21,4 +21,8 @@
     <string name="change">Change</string>
     <string name="delete">Delete</string>
     <string name="device">Device</string>
+    <string name="keyboard">Keyboard</string>
+    <string name="confirm_connection">Allow connection to pair the device</string>
+    <string name="close">Close</string>
+    <string name="device_is_not_connected">Device is not connected</string>
 </resources>

@@ -20,7 +20,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val tvControlViewModel by viewModels<TVControlViewModel> { TVControlViewModelFactory(application) }
         val deviceViewModel by viewModels<DeviceViewModel> { DeviceViewModelFactory(application) }
-        deviceViewModel.deleteAllDevices()
         Intercom.initialize(this.application, "android_sdk-cccc4fb5f4b56e774c19372949072b63fe0972f4", "is7b8yel")
         Intercom.client().loginUnidentifiedUser()
         setContent {

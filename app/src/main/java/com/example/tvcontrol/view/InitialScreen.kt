@@ -1,5 +1,8 @@
 package com.example.tvcontrol.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +52,6 @@ fun InitialScreen(
         }
         isLoading = false
     }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
